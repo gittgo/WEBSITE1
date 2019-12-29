@@ -11,12 +11,15 @@ import ElementUI from 'element-ui'
 import global from './assets/js/config'
 import base from './assets/js/base'
 import store from './assets/js/store'
+import MetaInfo from 'vue-meta-info'
+
 // import 'bootstrap/dist/css/bootstrap.css/bootstrap.min.css'
 // import 'bootstrap/dist/js/bootstrap'
 // import 'babel-polyfill'
 // import filters from './assets/js/filters'
 
 Vue.config.productionTip = false
+Vue.use(MetaInfo)
 Vue.use(VueResource)
 Vue.use(ElementUI)
 Vue.use(base)
@@ -32,7 +35,10 @@ new Vue({
   router,
   store,
   components: { App },
-  template: '<App/>'
+  template: '<App/>',
+  mounted () {
+    document.dispatchEvent(new Event('render-event'))
+  }
 })
 //个人中心登录判断
 router.beforeEach((to, from, next) => {
