@@ -122,8 +122,7 @@
           qq:"http://connect.qq.com/widget/shareqq/index.html?",
           qqzone:"http://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey?",
           weibo:"http://v.t.sina.com.cn/share/share.php?",
-          weixin:"",
-          appid:"wxaf0c55277e5973ef"
+          weixin:""
         },
         showwxf:false
       }
@@ -260,42 +259,39 @@
         return (/micromessenger/.test(ua)) ? true : false;
       },
       weixinshare:function() {
-          console.log(13212312);
              //处理url
 		       let params = {
 		           url: decodeURIComponent(location.href.split('#')[0])
-		       }
+           }
            //发送请求
            let _this = this;
            _this.getData(API.api.express.weixinshare,params,function(response){
+              //console.log(response);
              	//配置参数
 		           wx.config({
 		               debug: false, // 开启调试模式,调用的所有api的返回值会在客户端alert出来，若要查看传入的参数，可以在pc端打开，参数信息会通过log打出，仅在pc端时才会打印。
-		               appId: this.shareUrl.appid, // 必填，公众号的唯一标识
-		               timestamp: response.timestamp, // 必填，生成签名的时间戳
-		               nonceStr: response.nonceStr, // 必填，生成签名的随机串
-		               signature: response.signature,// 必填，签名，见附录1
+		               appId: "wxaf0c55277e5973ef", // 必填，公众号的唯一标识
+		               timestamp: response.object.timestamp, // 必填，生成签名的时间戳
+		               nonceStr: response.object.nonceStr, // 必填，生成签名的随机串
+		               signature: response.object.signature,// 必填，签名，见附录1
 		               jsApiList: ['onMenuShareAppMessage', 'onMenuShareTimeline', 'updateAppMessageShareData', 'updateTimelineShareData'] // 必填，需要使用的JS接口列表，所有JS接口列表见附录2
                });
                
-   /**
-		            * 通过ready接口处理成功验证
-		            * config信息验证成功后会执行ready方法
-		            * 需在用户可能点击分享按钮前就先调用
-		            */
-		           wx.ready(function() { //
-		               let tel = getStore('account');  //从本地获取                         
-		               let imgs = 'https://common.cnblogs.com/images/wechat.png',
-		                   //links = '域名访问地址/?#/share?invite='+ tel; // 分享链接
-		                   links = location.href;
+		           wx.ready(function() {    
+                 
+                   let links = location.href;//链接
+                   let img = _this.datas.image;
 		               let shareData = {
-		                   title: '努力学习',
-		                   desc: '好的东西我都想与你一起分享~',//这里请特别注意是要去除html
+		                   title: _this.datas.title,//标题
+		                   desc: _this.datas.smallTitle,//详情,这里请特别注意是要去除html
 		                   link: links,
-		                   imgUrl: imgs,
+                       imgUrl:img,
+                       success:function(){
+                         _this.showwxf=false;
+                       }
 		               };
 		               
-		               //兼容新老版本接口， 如不需要处理逻辑情况下， 调试好可以直接使用
+                   //兼容新老版本接口， 如不需要处理逻辑情况下， 调试好可以直接使用
 		               if(wx.onMenuShareAppMessage){ //微信文档中提到这两个接口即将弃用，故判断
 		                   wx.onMenuShareAppMessage(shareData);//1.0 分享到朋友
 		                   wx.onMenuShareTimeline(shareData);//1.0分享到朋友圈
@@ -303,132 +299,9 @@
 		                   wx.updateAppMessageShareData(shareData);//1.4 分享到朋友
 		                   wx.updateTimelineShareData(shareData);//1.4分享到朋友圈
 		               }
-		
-                  //调试，需单独处理回调使用
-		               wx.updateAppMessageShareData({ // 分享给朋友  ,在config里面填写需要使用的JS接口列表，然后这个方法才可以用 
-		                   title: '这里是标题1', // 分享标题
-		                   desc: 'This is a test!', // 分享描述
-		                   link: location.href, // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
-		                   imgUrl: '', // 分享图标
-		                   success() {
-		                       // 用户确认分享后执行的回调函数
-		                       alert("分享给朋友成功1");
-		                   },
-		                   cancel() {
-		                       // 用户取消分享后执行的回调函数
-		                       alert("分享给朋友取消1");
-		                   },
-		                   fail(res) {
-		                       // alert(JSON.stringify(res));
-		                   }
-		               });
-		               wx.updateTimelineShareData({ //分享朋友圈
-		                   shareData,  //直接调用配置好的参数
-		                   success() {
-		                       // 用户确认分享后执行的回调函数
-		                       alert("成功2");
-		                   },
-		                   cancel() {
-		                       // 用户取消分享后执行的回调函数
-		                       alert("取消2");
-		                   },
-		                   fail(res) {
-		                       // alert(JSON.stringify(res));
-		                   }
-		               });
 		               
-		           });
-
-
-
-
-
-
+               });
            });
-
-
-
-		      //  this.axios.getShareSdk(params).then((response) =>{
-		      //      console.log("123", response);
-		      //      // wx.config(response.data);  //如后台配置好相关的参数， 可以直接使用
-		
-					// //配置参数
-		      //      wx.config({
-		      //          debug: false, // 开启调试模式,调用的所有api的返回值会在客户端alert出来，若要查看传入的参数，可以在pc端打开，参数信息会通过log打出，仅在pc端时才会打印。
-		      //          appId: response.appId, // 必填，公众号的唯一标识
-		      //          timestamp: response.timestamp, // 必填，生成签名的时间戳
-		      //          nonceStr: response.nonceStr, // 必填，生成签名的随机串
-		      //          signature: response.signature,// 必填，签名，见附录1
-		      //          jsApiList: ['onMenuShareAppMessage', 'onMenuShareTimeline', 'updateAppMessageShareData', 'updateTimelineShareData'] // 必填，需要使用的JS接口列表，所有JS接口列表见附录2
-		      //      });
-		
-		
-		
-		      //      /**
-		      //       * 通过ready接口处理成功验证
-		      //       * config信息验证成功后会执行ready方法
-		      //       * 需在用户可能点击分享按钮前就先调用
-		      //       */
-		      //      wx.ready(function() { //
-		      //          let tel = getStore('account');  //从本地获取                         
-		      //          let imgs = 'https://common.cnblogs.com/images/wechat.png',
-		      //              links = '域名访问地址/?#/share?invite='+ tel; // 分享链接
-		                   
-		      //          let shareData = {
-		      //              title: '努力学习',
-		      //              desc: '好的东西我都想与你一起分享~',//这里请特别注意是要去除html
-		      //              link: links,
-		      //              imgUrl: imgs,
-		      //          };
-		               
-		      //          //兼容新老版本接口， 如不需要处理逻辑情况下， 调试好可以直接使用
-		      //          if(wx.onMenuShareAppMessage){ //微信文档中提到这两个接口即将弃用，故判断
-		      //              wx.onMenuShareAppMessage(shareData);//1.0 分享到朋友
-		      //              wx.onMenuShareTimeline(shareData);//1.0分享到朋友圈
-		      //          }else{
-		      //              wx.updateAppMessageShareData(shareData);//1.4 分享到朋友
-		      //              wx.updateTimelineShareData(shareData);//1.4分享到朋友圈
-		      //          }
-		
-          //         //调试，需单独处理回调使用
-		      //          // wx.updateAppMessageShareData({ // 分享给朋友  ,在config里面填写需要使用的JS接口列表，然后这个方法才可以用 
-		      //          //     title: '这里是标题1', // 分享标题
-		      //          //     desc: 'This is a test!', // 分享描述
-		      //          //     link: '域名访问地址/#/share?invite='+ tel, // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
-		      //          //     imgUrl: '', // 分享图标
-		      //          //     success() {
-		      //          //         // 用户确认分享后执行的回调函数
-		      //          //         alert("分享给朋友成功1");
-		      //          //     },
-		      //          //     cancel() {
-		      //          //         // 用户取消分享后执行的回调函数
-		      //          //         alert("分享给朋友取消1");
-		      //          //     },
-		      //          //     fail(res) {
-		      //          //         // alert(JSON.stringify(res));
-		      //          //     }
-		      //          // });
-		      //          // wx.updateTimelineShareData({ //分享朋友圈
-		      //          //     shareData,  //直接调用配置好的参数
-		      //          //     success() {
-		      //          //         // 用户确认分享后执行的回调函数
-		      //          //         alert("成功2");
-		      //          //     },
-		      //          //     cancel() {
-		      //          //         // 用户取消分享后执行的回调函数
-		      //          //         alert("取消2");
-		      //          //     },
-		      //          //     fail(res) {
-		      //          //         // alert(JSON.stringify(res));
-		      //          //     }
-		      //          // });
-		               
-		      //      });
-		      //      wx.error(res =>{//通过error接口处理失败验证
-		      //          // config信息验证失败会执行error函数
-		      //          console.log(res);
-		      //      });
-		      //  })
            
       }
     },
